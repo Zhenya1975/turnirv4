@@ -27,10 +27,6 @@ def fill_fighters():
                 db.session.rollback()
     return "результат импорта - в принт"
 
-def check_round_number(fight_id):
-  fight_id = fight_id
-  
-
   
 
 def fight_create_func(competition_id, round_number):
@@ -55,10 +51,11 @@ def fight_create_func(competition_id, round_number):
 
       ################################################################
 
-def delete_backlog_records(competition_id):
+def delete_backlog_records(competition_id, round_number):
   competition_id = competition_id
+  round_number = round_number
   # удаляем из бэклога записи с бойцами из созданннного боя
-  last_created_fight = FightsDB.query.filter_by(competition_id=competition_id).order_by(desc(FightsDB.fight_id)).first()
+  last_created_fight = FightsDB.query.filter_by(competition_id=competition_id, round_number=round_number).order_by(desc(FightsDB.fight_id)).first()
    # удаляем записи из бэклога бойцов, которые зашли в бой
   backlog_record_to_delete_red = BacklogDB.query.get(last_created_fight.red_fighter_id)
   if backlog_record_to_delete_red is None:
@@ -153,7 +150,7 @@ def competition_view(competition_id):
 def ajaxfile_red_fighter_progress():
     if request.method == 'POST':
         fight_id = request.form['fight_id']
-        current_fight_data = FightsDB.query.filter_by(fight_id=fight_id).all()[0]
+        current_fight_data = FightsDB.query.get(fight_id)
         competition_id = current_fight_data.competition_id
         current_round_number = current_fight_data.round_number
         print("fight_id после нажатия в ajax", fight_id)
@@ -162,6 +159,11 @@ def ajaxfile_red_fighter_progress():
         # выводим из игры синего бойца
         print("на удаление ", current_fight_data.blue_fighter.participant_last_name)
         current_fight_data.blue_fighter.activity_status = 0
+        try:
+          db.session.commit()
+        except Exception as e:
+          print("Не удалось вывести из игры синего бойца", e)
+          db.session.rollback()
         # добавляем в бэклог новую запись с победившим
         new_backlog_record = BacklogDB(fighter_id=current_fight_data.red_fighter_id, competition_id=competition_id, round_number=current_round_number+1)
         db.session.add(new_backlog_record)
@@ -184,13 +186,14 @@ def ajaxfile_red_fighter_progress():
 @home.route('/ajaxfile_red_fighter', methods=["POST", "GET"])
 def ajaxfile_red_fighter():
     if request.method == 'POST':
-        competition_id = request.form['competition_id']
+        
         fight_id = request.form['fight_id']
-        current_fight_data = FightsDB.query.filter_by(fight_id=fight_id).all()[0]
+        current_fight_data = FightsDB.query.get(fight_id)
+        competition_id = current_fight_data.competition_id
         current_round_number = current_fight_data.round_number
-        print("fight_id после нажатия", fight_id)
-        print("competition_id после нажатия", competition_id)
-        print("current_round_number", current_round_number)
+        print("fight_id после нажатия ajaxfile_red_fighter", fight_id)
+        print("competition_id после нажатия ajaxfile_red_fighter", competition_id)
+        print("current_round_number ajaxfile_red_fighter", current_round_number)
         
         # выводим из игры синего бойца
         print("на удаление ", current_fight_data.blue_fighter.participant_last_name)
@@ -221,7 +224,7 @@ def ajaxfile_red_fighter():
             current_round_number = current_round_number+1
             fight_create_func(competition_id, current_round_number)
             # удаляем из бэклога записи с бойцами
-            delete_backlog_records(competition_id)
+            delete_backlog_records(competition_id, current_round_number)
             
           else:
             return "finish"
@@ -230,12 +233,17 @@ def ajaxfile_red_fighter():
           print('длина бэклога - больше одного: ', len(backlog_data))
           fight_create_func(competition_id, current_round_number)
           # удаляем из бэклога записи с бойцами
-          delete_backlog_records(competition_id)
+          delete_backlog_records(competition_id, current_round_number)
          
         
         if len(backlog_data)==1:
           # получаем данные бойца из следующего круга
-          next_round_fighter_data = BacklogDB.query.filter_by(competition_id=competition_id, round_number=current_round_number+1).first()
+          try:
+            next_round_fighter_data = BacklogDB.query.filter_by(competition_id=competition_id, round_number=current_round_number+1).first()
+            
+          except Exception as e:
+            print("не удалось получить данные бойца из следующего раунда", e)
+          
           next_round_fighter_data.round_number = current_round_number
           try:
             db.session.commit()
@@ -244,7 +252,7 @@ def ajaxfile_red_fighter():
             db.session.rollback()
           fight_create_func(competition_id, current_round_number)
           # удаляем из бэклога записи с бойцами
-          delete_backlog_records(competition_id)
+          delete_backlog_records(competition_id, current_round_number)
           
         
         last_created_fight = FightsDB.query.filter_by(competition_id=competition_id, round_number=current_round_number).order_by(desc(FightsDB.fight_id)).first()
