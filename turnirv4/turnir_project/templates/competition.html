@@ -3,14 +3,17 @@
 {% block content %}
 
 <div class="container" style="margin-top: 10px">
-    
   <div class="row">
-    
-    <div class="col">
+    <div class="col text-center">
+      <div class="title_data">
+        Раунд: {{ fight_data.round_number }}
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col text-center">
       <div class="red_fighter_div">
-        <div class="row">
-          Раунд: {{ fight_data.round_number }}
-        </div>
       {{fight_data.red_fighter.participant_first_name}} {{fight_data.red_fighter.participant_last_name}}
         <p></p>
         <button data-id='{{fight_data.fight_id}}' type="button" class="select_red_fighter btn btn-primary">Выбрать</button>
@@ -18,8 +21,8 @@
       <p></p>
 
     </div>
-    <div class="col">
-      <div class="blue_fighter_div">
+    <div class="col text-center">
+      <div class="blue_fighter_div text-center">
       {{fight_data.blue_fighter.participant_first_name}} {{fight_data.blue_fighter.participant_last_name}}
       </div>
       <p></p>

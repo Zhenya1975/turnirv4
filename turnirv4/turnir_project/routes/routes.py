@@ -109,22 +109,7 @@ def competition_create_new():
         # удаляем из бэклога записи с созданным боем
         last_created_fight = FightsDB.query.filter_by(competition_id=competition_id).order_by(desc(FightsDB.fight_id)).first()
          # удаляем записи из бэклога бойцов, которые зашли в бой
-        backlog_record_to_delete_red = BacklogDB.query.get(last_created_fight.red_fighter_id)
-        if backlog_record_to_delete_red is None:
-            abort(404, description="No backlog record was Found with the given ID")
-        else:
-            db.session.delete(backlog_record_to_delete_red)
-          
-        backlog_record_to_delete_blue = BacklogDB.query.get(last_created_fight.blue_fighter_id)
-        if backlog_record_to_delete_blue is None:
-            abort(404, description="No backlog record was Found with the given ID")
-        else:
-            db.session.delete(backlog_record_to_delete_blue)
-        try:
-          db.session.commit()
-        except Exception as e:
-          print("Не удалось удалить записи из бэклога", e)
-          db.session.rollback()
+        delete_backlog_records(last_created_fight.competition_id, 1)  
         return redirect(url_for('home.competition_view', competition_id=competition_id))
 
     except Exception as e:
