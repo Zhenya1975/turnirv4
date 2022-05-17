@@ -171,9 +171,7 @@ def ajaxfile_red_fighter():
         print("не удалось добавить запись с победившим в бэклог", e)
         db.session.rollback()
       
-      # создаем новый бой
-      # проверяем ситуацию в бэклоге даннные из бэклога
-        
+      # проверяем ситуацию в бэклоге
       backlog_data = BacklogDB.query.filter_by(competition_id=competition_id, round_number=current_round_number).all()
       print("длина бэклога в раунде ", current_round_number, ": ", len(backlog_data))
       if len(backlog_data)>1:
@@ -181,6 +179,25 @@ def ajaxfile_red_fighter():
         fight_create_func(competition_id, current_round_number)
         # удаляем из бэклога записи с бойцами
         delete_backlog_records(competition_id, current_round_number)
+
+      elif len(backlog_data)==1:
+        # получаем данные бойца из следующего круга
+        try:
+          next_round_fighter_data = BacklogDB.query.filter_by(competition_id=competition_id, round_number=current_round_number+1).first()
+        except Exception as e:
+          print("не удалось получить данные бойца из следующего раунда", e)
+          
+        next_round_fighter_data.round_number = current_round_number
+        try:
+          db.session.commit()
+          print("изменили данные бойца из следующего круга")
+        except Exception as e:
+          print("не удалось переписать номер круга в записи бойца из следующего круга", e)
+          db.session.rollback()
+        fight_create_func(competition_id, current_round_number)
+        # удаляем из бэклога записи с бойцами
+        delete_backlog_records(competition_id, current_round_number)
+
       
       elif len(backlog_data)==0:
         # проверяем длину бэклога следующего раунда
@@ -208,23 +225,7 @@ def ajaxfile_red_fighter():
         
          
         
-        # if len(backlog_data)==1:
-        #   # получаем данные бойца из следующего круга
-        #   try:
-        #     next_round_fighter_data = BacklogDB.query.filter_by(competition_id=competition_id, round_number=current_round_number+1).first()
-            
-        #   except Exception as e:
-        #     print("не удалось получить данные бойца из следующего раунда", e)
-          
-        #   next_round_fighter_data.round_number = current_round_number
-        #   try:
-        #     db.session.commit()
-        #   except Exception as e:
-        #     print("не удалось переписать номер круга в записи бойца из следующего круга", e)
-        #     db.session.rollback()
-        #   fight_create_func(competition_id, current_round_number)
-        #   # удаляем из бэклога записи с бойцами
-        #   delete_backlog_records(competition_id, current_round_number)
+        
           
         
         
