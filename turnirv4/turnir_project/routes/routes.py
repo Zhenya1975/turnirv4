@@ -202,7 +202,8 @@ def ajaxfile_red_fighter():
       print("last_created_fight_id", last_created_fight.fight_id)
       return jsonify(
           {'htmlresponsered': render_template('response_red_fighter_div.html', fight_data=last_created_fight),
-           'htmlresponseblue': render_template('response_blue_fighter_div.html', fight_data=last_created_fight)
+           'htmlresponseblue': render_template('response_blue_fighter_div.html', fight_data=last_created_fight),
+           'htmlresponsetitle': render_template('response_title_div.html', fight_data=last_created_fight),
            })  
     
       
