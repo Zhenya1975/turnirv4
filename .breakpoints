@@ -1,18 +1,10 @@
 {
   "files": {
-    "turnirv4/turnir_project/fighters.csv": [
-      {
-        "id": "50cf8c4c-c938-4f9b-8521-d92b0edcbc02",
-        "line": 5,
-        "version": 7,
-        "index": 514
-      }
-    ],
     "turnirv4/turnir_project/templates/competition.html": [
       {
         "id": "192f2fcd-d287-423a-975e-f5662e701d97",
         "line": 11,
-        "version": 14,
+        "version": 17,
         "index": 185
       }
     ]
