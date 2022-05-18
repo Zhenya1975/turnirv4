@@ -78,12 +78,14 @@
 
       $('.select_red_fighter').click(function(){
         console.log("final status ", final_status)
-        var fight_id = $(this).data('id');
-        console.log("fight_id после нажатия ", fight_id)
-     
+        
+        
+        
         if (final_status == "final") {
-          console.log("fight_id после нажатияяяяяяя ", fight_id)
-          window.location.href="{{url_for( 'home.test', fight_id=1)}}";
+          var f_id = $(this).data('id')*1;
+          console.log("fight_id после нажатияzzzzz ", f_id)
+
+          window.location.href="{{ url_for('home.test', fight_id=fight_data.fight_id)}}";
         } 
 
         //var round_number = {{ fight_data.round_number }}

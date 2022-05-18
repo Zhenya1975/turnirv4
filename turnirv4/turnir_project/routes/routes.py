@@ -145,7 +145,7 @@ def competition_create_new():
 
 @home.route('/test/<int:fight_id>')
 def test(fight_id):
-  print("fight_id", fight_id)
+  print("fight_id_test", fight_id)
   return "testtt"
 
 @home.route('/competition/<int:competition_id>')
@@ -157,8 +157,8 @@ def competition_view(competition_id):
     return render_template("competition.html", fight_data=last_created_fight)
 
 
-@home.route('/competition/<int:competition_id>/finish/')
-def finish_func(competition_id):
+@home.route('/competition/<int:fight_id>')
+def finish_func(fight_id):
   winner_data = ParticipantsDB.query.filter_by(activity_status=1).first()
   print("winner_data", winner_data)
   return render_template("finish.html", winner_data=winner_data)
