@@ -21,6 +21,7 @@ class FightsDB(db.Model):
     red_fighter_id = db.Column(db.Integer, db.ForeignKey('participantsDB.participant_id'))
     blue_fighter_id = db.Column(db.Integer, db.ForeignKey('participantsDB.participant_id'))
     fight_winner_id = db.Column(db.Integer, default=0)
+    final_status = db.Column(db.String, default='not')
 
 class BacklogDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)

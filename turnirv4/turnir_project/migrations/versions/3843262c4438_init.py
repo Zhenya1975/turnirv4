@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 60c946196d39
+Revision ID: 3843262c4438
 Revises: 
-Create Date: 2022-05-17 08:21:22.992824
+Create Date: 2022-05-18 07:26:05.601960
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '60c946196d39'
+revision = '3843262c4438'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -45,6 +45,7 @@ def upgrade():
     sa.Column('red_fighter_id', sa.Integer(), nullable=True),
     sa.Column('blue_fighter_id', sa.Integer(), nullable=True),
     sa.Column('fight_winner_id', sa.Integer(), nullable=True),
+    sa.Column('final_status', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['blue_fighter_id'], ['participantsDB.participant_id'], name=op.f('fk_fightsDB_blue_fighter_id_participantsDB')),
     sa.ForeignKeyConstraint(['competition_id'], ['competitionsDB.competition_id'], name=op.f('fk_fightsDB_competition_id_competitionsDB')),
     sa.ForeignKeyConstraint(['red_fighter_id'], ['participantsDB.participant_id'], name=op.f('fk_fightsDB_red_fighter_id_participantsDB')),

@@ -7,6 +7,8 @@
     <div class="col text-center">
       <div class="title_data">
         Раунд: {{ fight_data.round_number }}
+        <p data-id='{{fight_data.final_status}}' class="check_final_status"></p>
+        <p data-id='{{fight_data.fight_id}}' class="check_fight_id"></p>
       </div>
     </div>
   </div>
@@ -43,11 +45,18 @@
 
 <script>
     $(document).ready(function() {
-
+    var final_status = $('.check_final_status').data('id');
+    var fight_id = $('.check_fight_id').data('id');
+    console.log("final status ", final_status)
+      console.log("fight_id ", fight_id)
+    
       // Обработка нажатия красного бойца в ajax
       // Из ajax мы можем получить только fight_id здесь нет вообще никаких данных из БД. Поэтому получив данные из Бд уходим сразу на раут с обработкой этого fight_id
       $(".red_fighter_div").click('.select_red_fighter_ajax', function(){
-        
+        console.log("final status ", final_status)
+        // if (final_status == "final") {
+        {#    window.location.href="{{url_for( 'home.test', fight_id=fight_id )}}"; #}
+        // } 
         var fight_id = $('.select_red_fighter_ajax').data('id');
         console.log("данные с кнопки ajax", fight_id)
         $.ajax({
@@ -68,8 +77,14 @@
        });
 
       $('.select_red_fighter').click(function(){
-        
+        console.log("final status ", final_status)
         var fight_id = $(this).data('id');
+        console.log("fight_id после нажатия ", fight_id)
+     
+        if (final_status == "final") {
+          console.log("fight_id после нажатияяяяяяя ", fight_id)
+          window.location.href="{{url_for( 'home.test', fight_id=1)}}";
+        } 
 
         //var round_number = {{ fight_data.round_number }}
         //var fight_id =  {{ fight_data.fight_id }}
