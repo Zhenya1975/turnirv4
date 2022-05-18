@@ -54,9 +54,9 @@
       // Из ajax мы можем получить только fight_id здесь нет вообще никаких данных из БД. Поэтому получив данные из Бд уходим сразу на раут с обработкой этого fight_id
       $(".red_fighter_div").click('.select_red_fighter_ajax', function(){
         console.log("final status ", final_status)
-        // if (final_status == "final") {
-        {#    window.location.href="{{url_for( 'home.test', fight_id=fight_id )}}"; #}
-        // } 
+        if (final_status == "final") {
+          window.location.href="{{ url_for('home.finish_red', fight_id=fight_data.fight_id)}}";
+        }
         var fight_id = $('.select_red_fighter_ajax').data('id');
         console.log("данные с кнопки ajax", fight_id)
         $.ajax({
