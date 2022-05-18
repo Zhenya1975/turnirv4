@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, flash, request, jsonify, redirect, url_for, abort
 from sqlalchemy import desc
-from ..models.models import ParticipantsDB, FightsDB, CompetitionsDB, BacklogDB
+from ..models.models import ParticipantsDB, FightsDB, CompetitionsDB, BacklogDB, RegistrationsDB
 from ..extensions import db
 import csv
 
@@ -14,18 +14,18 @@ def home_view():
 
 @home.route('/fill_fighters')
 def fill_fighters():
-    with open('fighters.csv', encoding='utf8') as csvfile:
-        fighters_csv_list = csv.reader(csvfile)
-        for row in fighters_csv_list:
-            new_fighter = ParticipantsDB(participant_first_name=row[0], participant_last_name=row[1], activity_status=1)
-            db.session.add(new_fighter)
-            try:
-                db.session.commit()
-                print("Бойцы импортированы в базу")
-            except Exception as e:
-                print("Не получилось импортировать бойцов. Ошибка: ", e)
-                db.session.rollback()
-    return "результат импорта - в принт"
+  with open('fighters.csv', encoding='utf8') as csvfile:
+    fighters_csv_list = csv.reader(csvfile)
+    for row in fighters_csv_list:
+      new_fighter = ParticipantsDB(participant_first_name=row[0], participant_last_name=row[1])
+      db.session.add(new_fighter)
+      try:
+          db.session.commit()
+          print("Бойцы импортированы в ParticipantsDB")
+      except Exception as e:
+          print("Не получилось импортировать бойцов. Ошибка: ", e)
+          db.session.rollback()
+  return "результат импорта - в принт"
 
   
 
@@ -93,18 +93,29 @@ def competition_create_new():
         db.session.commit()
         created_competition_data = CompetitionsDB.query.order_by(desc(CompetitionsDB.competition_id)).first()
         competition_id = created_competition_data.competition_id
+        # создаем записи регистраций на созданное соревнование
+        participant_data = ParticipantsDB.query.all()
+        for participant in participant_data:
+          new_registration = RegistrationsDB(participant_id = participant.participant_id, competition_id = competition_id, activity_status = 1)
+          db.session.add(new_registration)
+          try:
+            db.session.commit()
+          except Exception as e:
+            print("Не удалось создать запись в регистрациях", e)
+            db.session.rollback()
+        
         # помещаем всех бойцов в бэклог
-        participants_data = ParticipantsDB.query.all()
-
-        for participant in participants_data:
-            participant_id = participant.participant_id
-            new_backlog_record = BacklogDB(fighter_id=participant_id, competition_id=competition_id, round_number=1)
-            db.session.add(new_backlog_record)
-            try:
-                db.session.commit()
-            except Exception as e:
-                print("Не удалось создать запись в бэклоге", e)
-                db.session.rollback()
+        # participants_data = ParticipantsDB.query.all()
+        regs_data = RegistrationsDB.query.filter_by(competition_id = competition_id).all()
+        for registration in regs_data:
+          reg_id = registration.reg_id
+          new_backlog_record = BacklogDB(fighter_id=reg_id, competition_id=competition_id, round_number=1)
+          db.session.add(new_backlog_record)
+          try:
+            db.session.commit()
+          except Exception as e:
+            print("Не удалось создать запись в бэклоге", e)
+            db.session.rollback()
         
         # проверяем ситуацию в бэклоге в текущем и следующем раунде
         next_round_backlog_data = BacklogDB.query.filter_by(competition_id=competition_id, round_number=2).all()
